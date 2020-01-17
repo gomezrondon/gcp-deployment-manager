@@ -1,13 +1,13 @@
 // Configure the Google Cloud provider
 provider "google" {
   credentials = "${file("credentials_file.json")}"
-  project     = "clear-gantry-123"
-  region      = "us-west1"
+  project     = var.project
+  region      = var.region
 }
 
 // Terraform plugin for creating random ids
 resource "random_id" "instance_id" {
-  byte_length = 8
+  byte_length = 4
 }
 
 // A single Google Cloud Engine instance
