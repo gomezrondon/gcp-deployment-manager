@@ -38,3 +38,26 @@ resource "google_compute_network" "vpc_network" {
   name = "terraform-network"
   auto_create_subnetworks = "true"
 }
+
+resource "google_compute_firewall" "allow-tcp-22" {
+  //https://www.terraform.io/docs/providers/google/r/compute_firewall.html
+  name    = "terra-allow-ssh"
+  network = "${google_compute_network.vpc_network.self_link}"
+  priority = 500
+  target_tags = ["open-ssh-tag"]
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+}
+
+resource "google_compute_firewall" "allow-http" {
+  name    = "terra-allow-http"
+  network = "${google_compute_network.vpc_network.self_link}"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8080"]
+  }
+}
