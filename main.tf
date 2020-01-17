@@ -29,9 +29,12 @@ resource "google_compute_instance" "default" {
     network = "${google_compute_network.vpc_network.self_link}"
 
     access_config {
-      // Include this section to give the VM an external ip address
+      // Include this section to give the VM an non ephemiral external ip address
     }
   }
+
+  tags = ["open-ssh-tag"]
+
 }
 
 resource "google_compute_network" "vpc_network" {
