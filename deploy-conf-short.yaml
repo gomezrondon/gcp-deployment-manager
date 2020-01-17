@@ -1,0 +1,18 @@
+resources:
+  - name: vm-short-url
+    type: compute.v1.instance
+    properties:
+      zone: us-central1-a
+      machineType: zones/us-central1-a/machineTypes/f1-micro
+      disks:
+        - deviceName: boot
+          type: PERSISTENT
+          boot: true
+          autoDelete: true
+          initializeParams:
+            sourceImage: projects/debian-cloud/global/images/family/debian-9
+      networkInterfaces:
+        - network: global/networks/default
+          accessConfigs:
+            - name: External_NAT
+              type: ONE_TO_ONE_NAT

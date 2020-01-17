@@ -1,0 +1,44 @@
+resources:
+  # gcloud deployment-manager deployments create dm-w-subnet --config deploy-conf-w-subnet.yaml
+  # gcloud deployment-manager deployments delete dm-w-subnet
+  # https://cloud.google.com/compute/docs/reference/rest/v1/instances
+  - name: vm-short-url
+    type: compute.v1.instance
+    properties:
+      zone: us-central1-a
+      machineType: zones/us-central1-a/machineTypes/f1-micro
+      disks:
+        - deviceName: boot
+          type: PERSISTENT
+          boot: true
+          autoDelete: true
+          initializeParams:
+            sourceImage: projects/debian-cloud/global/images/family/debian-9
+      networkInterfaces:
+        - network: $(ref.network-1.selfLink)
+          subnetwork: $(ref.nt1-subnet-1.selfLink)
+          accessConfigs:
+            - name: External_NAT
+              type: ONE_TO_ONE_NAT
+      tags:
+        items: ["open-ssh-tag"]
+  - name: network-1
+    type: compute.v1.network
+    properties:
+      autoCreateSubnetworks: false
+  - name: nt1-subnet-1
+    type: compute.v1.subnetwork
+    properties:
+      ipCidrRange: 10.0.1.0/24
+      network: $(ref.network-1.selfLink)
+      privateIpGoogleAccess: false
+      region: us-central1
+  - name: open-ssh-by-tag-fwr-2
+    type: compute.v1.firewall
+    properties:
+      priority: 500
+      sourceRanges: ["0.0.0.0/0"]
+      targetTags: ["open-ssh-tag"]
+      allowed:
+        - IPProtocol: TCP
+          ports: ["22"]
