@@ -14,7 +14,7 @@ resource "random_id" "instance_id" {
 resource "google_compute_instance" "default" {
   name         = "clear-gantry-vm-${random_id.instance_id.hex}"
   machine_type = "f1-micro"
-  zone         = "us-west1-a"
+  zone         = var.zone
 
   boot_disk {
     initialize_params {
@@ -42,7 +42,7 @@ resource "google_compute_network" "vpc_network" {
   auto_create_subnetworks = "true"
 }
 
-resource "google_compute_firewall" "allow-tcp-22" {
+resource "google_compute_firewall" "allow-ssh" {
   //https://www.terraform.io/docs/providers/google/r/compute_firewall.html
   name    = "terra-allow-ssh"
   network = "${google_compute_network.vpc_network.self_link}"
@@ -63,4 +63,11 @@ resource "google_compute_firewall" "allow-http" {
     protocol = "tcp"
     ports    = ["8080"]
   }
+}
+
+resource "google_storage_bucket" "image-store" {
+  //https://www.terraform.io/docs/providers/google/r/storage_bucket.html
+  name     = "image-store-bucket-test"
+  location = "EU"
+
 }
