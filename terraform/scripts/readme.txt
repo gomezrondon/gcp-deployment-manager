@@ -1,0 +1,1 @@
+chmod u+x plan.sh   // para hacerlo executable
