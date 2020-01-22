@@ -6,13 +6,14 @@ resource "random_id" "instance_id" {
 
 // A single Google Cloud Engine instance
 resource "google_compute_instance" "default" {
-  name         = "clear-gantry-vm-${random_id.instance_id.hex}"
-  machine_type = "f1-micro"
-  zone         = "us-west1-a"
+  count = length(var.name_count)
+  name = "list-${var.name_count[count.index]}"
+  machine_type = var.machine_type
+  zone         = var.zone
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = var.image
     }
   }
 
@@ -20,10 +21,21 @@ resource "google_compute_instance" "default" {
     network = "default"
 
   }
-/* esto no funciona
+
   service_account {
     scopes = ["userinfo-email", "compute-ro","storage-ro"]
   }
-*/
+
 }
 
+output "machine_type" {
+  value = "${google_compute_instance.default.*.machine_type}"
+}
+
+output "machine_name" {
+  value = "${google_compute_instance.default.*.name}"
+}
+
+output "machine_zone" {
+  value = "${google_compute_instance.default.*.zone}"
+}
