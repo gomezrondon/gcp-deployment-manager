@@ -68,6 +68,6 @@ resource "google_compute_firewall" "allow-http" {
 resource "google_storage_bucket" "image-store" {
   //https://www.terraform.io/docs/providers/google/r/storage_bucket.html
   name     = "image-store-bucket-test"
-  location = "EU"
+  location = "US"
 
 }
