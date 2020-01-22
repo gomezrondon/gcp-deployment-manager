@@ -40,6 +40,18 @@ resource "google_compute_instance" "default" {
 }
 
 
+resource "google_compute_disk" "default" {
+  name = "test-desk"
+  type = "pd-standard" //https://cloud.google.com/compute/docs/disks/add-persistent-disk#create_disk
+  zone = var.zone
+  size = 10
+}
+
+resource "google_compute_attached_disk" "default" {
+  disk = google_compute_disk.default.self_link
+  instance = google_compute_instance.default[0].self_link
+}
+
 
 output "machine_type" {
   value = "${google_compute_instance.default.*.machine_type}"
