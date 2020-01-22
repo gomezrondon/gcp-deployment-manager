@@ -4,10 +4,35 @@ resource "random_id" "instance_id" {
   byte_length = 4
 }
 
-// A single Google Cloud Engine instance
 resource "google_compute_instance" "default" {
-  count = length(var.name_count)
+  count = 1
   name = "list-${var.name_count[count.index]}"
+  machine_type = var.machine_type["dev"]
+  zone         = var.zone
+
+  boot_disk {
+    initialize_params {
+      image = var.image
+    }
+  }
+
+  network_interface {
+    network = "default"
+
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro","storage-ro"]
+  }
+
+  depends_on = ["google_compute_instance.second"]
+
+}
+
+
+// A single Google Cloud Engine instance
+resource "google_compute_instance" "second" {
+  name = "second-server"
   machine_type = var.machine_type["dev"]
   zone         = var.zone
 
