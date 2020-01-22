@@ -11,7 +11,11 @@ variable "zone" {
 }
 
 variable "machine_type" {
-  default = "f1-micro"
+  type = "map"
+  default = {
+    dev = "f1-micro"
+    prod = "n1-standard-1"
+  }
 }
 
 variable "image" {

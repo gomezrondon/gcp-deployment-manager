@@ -8,7 +8,7 @@ resource "random_id" "instance_id" {
 resource "google_compute_instance" "default" {
   count = length(var.name_count)
   name = "list-${var.name_count[count.index]}"
-  machine_type = var.machine_type
+  machine_type = var.machine_type["dev"]
   zone         = var.zone
 
   boot_disk {
