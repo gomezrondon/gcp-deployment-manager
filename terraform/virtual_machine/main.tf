@@ -1,10 +1,15 @@
+
+locals {
+  description = "instance of type ${var.machine_type["dev"]}}"
+}
+
 resource "google_compute_instance" "default" {
   count = var.instance_count
   name = "list-${var.name_count[count.index]}"
   machine_type = var.machine_type["dev"]
   zone         = var.zone
   can_ip_forward = false
-  description = "This is our virtual machine"
+  description = local.description
 
   tags = ["allow-http","allow-https"] # Firewall tags
 
