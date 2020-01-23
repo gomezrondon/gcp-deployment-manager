@@ -1,11 +1,10 @@
 resource "google_storage_bucket" "bucket" {
-  count = 1
-  name = "udemy-test-${count.index}"
+  name = var.bucket_name
   location = var.location
   storage_class = "REGIONAL"
 
   labels = {
-    name = "udemy-test-${count.index}"
+    name = var.bucket_name
     location = var.location
   }
 

@@ -1,5 +1,5 @@
 variable "project" { 
-    default = "clear-gantry-123"
+    default = "ut-265822"
 }
 
 variable "region" {
@@ -20,10 +20,6 @@ variable "machine_type" {
 
 variable "image" {
   default = "debian-cloud/debian-9"
-}
-
-variable "instance_count" {
-  default = 1
 }
 
 variable "name_count" {

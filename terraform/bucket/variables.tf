@@ -27,5 +27,9 @@ variable "name_count" {
 }
 
 variable "location" {
-  default = "US-CENTRAL1"
+  default = "us-central1"
+}
+
+variable "bucket_name" {
+  default = "udemy-test-1"
 }
