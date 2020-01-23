@@ -11,11 +11,11 @@ resource "google_compute_instance" "default" {
   can_ip_forward = false
   description = local.description
 
-  tags = ["allow-http","allow-https"] # Firewall tags
+  tags = ["allow-http","allow-https","allow-ssh"] # Firewall tags
 
   boot_disk {
     initialize_params {
-      image = var.image
+      image = var.image["ubuntu"]
       size = 10
     }
   }
@@ -28,6 +28,9 @@ resource "google_compute_instance" "default" {
   network_interface {
     network = "default"
 
+    access_config {
+      // Ephemeral IP
+    }
   }
 
   metadata = {
@@ -35,7 +38,7 @@ resource "google_compute_instance" "default" {
     foo = "bar"
   }
 
-  metadata_startup_script = "echo Hi > test.txt"
+  metadata_startup_script = "sudo apt-get update && sudo apt-get install apache2 -y && echo '<!doctype html><html><body><h1>Hello from Terraform on Google Cloud!</h1></body></html>' | sudo tee /var/www/html/index.html"
 
   service_account {
     scopes = ["userinfo-email", "compute-ro","storage-ro"]
@@ -43,6 +46,7 @@ resource "google_compute_instance" "default" {
 
 
 }
+
 
 
 resource "google_compute_disk" "default" {

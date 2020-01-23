@@ -19,7 +19,12 @@ variable "machine_type" {
 }
 
 variable "image" {
-  default = "debian-cloud/debian-9"
+  //https://cloud.google.com/compute/docs/images
+  type = "map"
+  default = {
+    debian = "debian-cloud/debian-9"
+    ubuntu = "ubuntu-os-cloud/ubuntu-1804-lts"
+  }
 }
 
 variable "instance_count" {
