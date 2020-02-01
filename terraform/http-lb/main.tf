@@ -84,3 +84,8 @@ resource "google_compute_region_instance_group_manager" "instance_group_manager"
   target_size = 2
 }
 
+#https://www.terraform.io/docs/providers/google/r/compute_http_health_check.html
+resource "google_compute_http_health_check" "default" {
+  name         = "udemy-http-basic-check"
+  request_path = "/"
+}
