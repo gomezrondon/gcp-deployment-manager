@@ -82,6 +82,11 @@ resource "google_compute_region_instance_group_manager" "instance_group_manager"
 
   target_pools = [google_compute_target_pool.default.self_link]
   target_size = 2
+
+  named_port {
+    name = "http"
+    port = 80
+  }
 }
 
 #https://www.terraform.io/docs/providers/google/r/compute_http_health_check.html
