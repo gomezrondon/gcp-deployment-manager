@@ -94,3 +94,10 @@ resource "google_compute_http_health_check" "default" {
   name         = "udemy-http-basic-check"
   request_path = "/"
 }
+
+#https://www.terraform.io/docs/providers/google/r/compute_backend_service.html
+resource "google_compute_backend_service" "default" {
+  name          = "udemy-backend-service"
+
+  health_checks = [google_compute_http_health_check.default.self_link]
+}
