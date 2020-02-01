@@ -3,7 +3,7 @@
 resource "google_compute_instance_template" "instance_template" {
   name = "udemy-nginx-template"
   description = "This is our autoscaling template"
-  tags = ["allow-http"] # network
+  tags = ["http-server"] # network tag create by google
 
   instance_description = "This is an instance that has been auto scaled"
   machine_type = var.machine_type["prod"]
@@ -27,7 +27,7 @@ resource "google_compute_instance_template" "instance_template" {
     }
   }
 
-  metadata_startup_script = "sudo apt-get update && sudo apt-get install -y nginx && sudo service nginx start"
+  metadata_startup_script = "sudo apt-get update && sudo apt-get install apache2 -y && echo '<!doctype html><html><body><h1>Hello from Terraform on Google Cloud!</h1></body></html>' | sudo tee /var/www/html/index.html"
 
   service_account {
     scopes = [
@@ -42,17 +42,6 @@ resource "google_compute_instance_template" "instance_template" {
 
 }
 
-
-resource "google_compute_firewall" "allow-http" {
-  name    = "terra-allow-http"
-  network = "default"
-  target_tags = ["allow-http"]
-
-  allow {
-    protocol = "tcp"
-    ports    = ["8080"]
-  }
-}
 
 resource "google_compute_target_pool" "default" {
   name = "udemy-instance-pool"
@@ -72,6 +61,6 @@ resource "google_compute_region_instance_group_manager" "instance_group_manager"
   }
 
   target_pools = [google_compute_target_pool.default.self_link]
-  target_size = 2
+  target_size = 1
 }
 
