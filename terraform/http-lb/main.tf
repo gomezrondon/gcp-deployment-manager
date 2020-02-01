@@ -56,6 +56,13 @@ resource "google_compute_firewall" "allow_http" {
   target_tags = ["allow-http"]
 }
 
+
+resource "google_compute_forwarding_rule" "default" {
+  name       = "udemy-nginx-lb"
+  target     = google_compute_target_pool.default.self_link
+  port_range = "80"
+}
+
 resource "google_compute_target_pool" "default" {
   name = "udemy-instance-pool"
   region = var.region
