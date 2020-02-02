@@ -42,6 +42,27 @@ resource "google_compute_instance_template" "instance_template" {
 
 }
 
+
+# Group Manager < -- Manages the nodes
+resource "google_compute_region_instance_group_manager" "instance_group_manager" {
+  name = "instance-nginx-group"
+  base_instance_name = "instance-nginx"
+  region = var.region
+
+  version {
+    name = "v1-ig"
+    instance_template = google_compute_instance_template.instance_template.self_link
+  }
+
+  //target_pools = [google_compute_target_pool.default.self_link]
+  target_size = 2
+
+  named_port { // 7
+    name = "http"
+    port = 80
+  }
+}
+
 resource "google_compute_firewall" "allow_http" {
   name = "allow-http"
   network = "default"
@@ -56,48 +77,47 @@ resource "google_compute_firewall" "allow_http" {
   target_tags = ["allow-http"]
 }
 
+// 6
+resource "google_compute_health_check" "default" {
+  name = "udemy-http-basic-check"
 
-resource "google_compute_forwarding_rule" "default" {
-  name       = "udemy-nginx-lb"
-  target     = google_compute_target_pool.default.self_link
-  port_range = "80"
-}
-
-resource "google_compute_target_pool" "default" {
-  name = "udemy-instance-pool"
-  region = var.region
-}
-
-
-# Group Manager < -- Manages the nodes
-resource "google_compute_region_instance_group_manager" "instance_group_manager" {
-  name = "instance-nginx-group"
-  base_instance_name = "instance-nginx"
-  region = var.region
-
-  version {
-    name = "v1-ig"
-    instance_template = google_compute_instance_template.instance_template.self_link
-  }
-
-  target_pools = [google_compute_target_pool.default.self_link]
-  target_size = 2
-
-  named_port {
-    name = "http"
-    port = 80
+  tcp_health_check {
+    port = "80"
   }
 }
 
-#https://www.terraform.io/docs/providers/google/r/compute_http_health_check.html
-resource "google_compute_http_health_check" "default" {
-  name         = "udemy-http-basic-check"
-  request_path = "/"
-}
 
+//8
 #https://www.terraform.io/docs/providers/google/r/compute_backend_service.html
 resource "google_compute_backend_service" "default" {
-  name          = "udemy-backend-service"
+  name     = "udemy-backend"
+  protocol = "HTTP"
 
-  health_checks = [google_compute_http_health_check.default.self_link]
+  health_checks = [google_compute_health_check.default.self_link]
+
+  backend {// 9
+    group = google_compute_region_instance_group_manager.instance_group_manager.instance_group
+  }
+
+}
+
+// 10
+resource "google_compute_url_map" "url-map" {
+  name            = "udemy-web-map"
+  default_service = google_compute_backend_service.default.self_link
+}
+
+// 11
+resource "google_compute_target_http_proxy" "http-proxy" {
+  name        = "udemy-http-lb-proxy"
+  description = "http proxy for cadence graphite"
+  url_map     = google_compute_url_map.url-map.self_link
+}
+
+// 12
+// https://www.terraform.io/docs/providers/google/r/compute_global_forwarding_rule.html
+resource "google_compute_global_forwarding_rule" "default" {
+  name       = "udemy-http-content-rule"
+  port_range = "80"
+  target = google_compute_target_http_proxy.http-proxy.self_link
 }

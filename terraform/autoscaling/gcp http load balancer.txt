@@ -1,0 +1,71 @@
+https://codelabs.developers.google.com/codelabs/cloud-load-balancers/index.html?index=..%2F..index#6
+
+gcloud config set compute/zone us-central1-a
+gcloud config set compute/region us-central1
+
+1)
+gcloud compute instance-templates create nginx-template \
+         --metadata-from-file startup-script=startup.sh
+
+2)
+gcloud compute target-pools create nginx-pool
+
+
+3)
+gcloud compute instance-groups managed create nginx-group \
+         --base-instance-name nginx \
+         --size 2 \
+         --template nginx-template \
+         --target-pool nginx-pool
+
+4)
+gcloud compute firewall-rules create www-firewall --allow tcp:80
+
+
+5) Network load balancer ************
+gcloud compute forwarding-rules create nginx-lb \
+         --ports 80 \
+         --target-pool nginx-pool
+
+-------------------------------------------------
+
+6)
+gcloud compute health-checks create http http-basic-check \
+    --port 80
+
+7)
+gcloud compute instance-groups managed \
+      set-named-ports nginx-group \
+      --named-ports http:80
+
+8)
+gcloud compute backend-services create nginx-backend \
+    --protocol HTTP \
+    --health-checks http-basic-check \
+    --global
+
+9)
+gcloud compute backend-services add-backend nginx-backend \
+    --balancing-mode=UTILIZATION \
+    --max-utilization=0.8 \
+    --capacity-scaler=1 \
+    --instance-group=nginx-group \
+    --instance-group-zone=us-central1-a \
+    --global
+
+
+10)Create a URL map
+gcloud compute url-maps create web-map \
+      --default-service nginx-backend
+
+
+11)Create a target HTTP proxy to route requests to your URL map
+gcloud compute target-http-proxies create http-lb-proxy \
+      --url-map web-map
+
+
+12) Aqui es donde se genera il IP unico
+gcloud compute forwarding-rules create http-content-rule \
+        --global \
+        --target-http-proxy http-lb-proxy \
+        --ports=80
