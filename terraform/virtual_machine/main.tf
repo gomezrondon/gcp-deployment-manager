@@ -36,9 +36,27 @@ resource "google_compute_instance" "default" {
   metadata = {
     size = "10"
     foo = "bar"
+    ssh-keys = "INSERT_USERNAME:${file("~/ssh-key/my-keys.pub")}"
   }
 
-  metadata_startup_script = "sudo apt-get update && sudo apt-get install apache2 -y && echo '<!doctype html><html><body><h1>Hello from Terraform on Google Cloud!</h1></body></html>' | sudo tee /var/www/html/index.html"
+# https://cloud.google.com/community/tutorials/getting-started-on-gcp-with-terraform
+  provisioner "remote-exec" {
+    connection {
+      host = "${google_compute_instance.default.network_interface.0.access_config.0.nat_ip}"
+      type        = "ssh"
+      user        = "INSERT_USERNAME"
+      timeout     = "500s"
+      private_key = "${file("~/.ssh/google_compute_engine")}"
+    }
+
+    inline = [
+      "sudo apt-get update",
+      "sudo apt-get install -y apache2",
+      "echo '<!doctype html><html><body><h1>Hello from Terraform on Google Cloud!</h1></body></html>' | sudo tee /var/www/html/index.html",
+      "touch /tmp/javier.txt"
+    ]
+
+  }
 
   service_account {
     scopes = ["userinfo-email", "compute-ro","storage-ro"]
