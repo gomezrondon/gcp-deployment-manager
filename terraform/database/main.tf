@@ -11,6 +11,12 @@ resource "google_sql_database_instance" "gcp_database" {
   }
 }
 
+#https://www.terraform.io/docs/providers/google/r/sql_database.html
+resource "google_sql_database" "database" {
+  name     = var.db_name
+  instance = google_sql_database_instance.gcp_database.name
+}
+
 resource "google_sql_user" "admin" {
   count = 1
   name = var.user_name

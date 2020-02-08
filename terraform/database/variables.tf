@@ -37,3 +37,5 @@ variable "user_name" {default = "admin"}
 variable "user_password" {default = "123456"}
 variable "replication_type" {default = "SYNCHRONOUS"}
 variable "activation_policy" {default = "always"}
+//------------- database
+variable "db_name" {default = "messages"}
