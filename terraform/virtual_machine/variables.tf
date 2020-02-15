@@ -27,6 +27,8 @@ variable "image" {
   }
 }
 
+variable "instance_user" {default = "INSERT_USERNAME"}
+
 variable "instance_count" {
   default = 1
 }
